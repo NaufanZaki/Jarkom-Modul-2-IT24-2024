@@ -850,7 +850,8 @@ lynx http://192.245.2.5:14000
 
 ## Revisi
 1. Untuk revisi dari soal nomor 5 - 10, adalah dibagian etc/resolv.conf dimana IP dari servernya masih salah oleh karena itu masih belum bisa ping saat demo, dan di lapres ini sudah dibetulkan dan sudah berjalan dengan baik
-2. Untuk nomor 12 dan 13 tidak dapat berjalan dengan baik saat demo, dan pada lapres nya sudah berjalan dengan baik
+   ![resolv.conf](documentation/isi_resolveconf.png)
+3. Untuk nomor 12 dan 13 tidak dapat berjalan dengan baik saat demo, dan pada lapres nya sudah berjalan dengan baik
 
 
 
