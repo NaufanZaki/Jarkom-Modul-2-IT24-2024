@@ -498,7 +498,7 @@ lynx http://www.redzone.IT24.com
 
 **Output**
 
-![image](https://github.com/NaufanZaki/Jarkom_Modul_2_IT24_2024/assets/124648489/2ab046ae-3e1e-419d-a20c-71aba12d9cac)
+![image](https://github.com/NaufanZaki/Jarkom_Modul_2_IT24_2024/assets/124648489/d4779ded-5747-47d1-b51a-1a6f20c0cfd9)
 
 
 
