@@ -4,7 +4,6 @@
 | --------------------- | ----------------------- |
 | Monika Damelia Hutapea | 5027221011 |
 | Naufan Zaki Lugmanulhakim | 5027221065 |
-# Soal
 # SetUp
 ## Address
 - Pochinki (192.245.1.2) (Master)
