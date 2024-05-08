@@ -501,9 +501,347 @@ lynx http://www.redzone.IT24.com
 ![image](https://github.com/NaufanZaki/Jarkom_Modul_2_IT24_2024/assets/124648489/d4779ded-5747-47d1-b51a-1a6f20c0cfd9)
 
 
+### Soal 13
+
+Tapi pusat merasa tidak puas dengan performanya karena traffic yag tinggi maka pusat meminta kita memasang load balancer pada web nya, dengan Severny, Stalber, Lipovka sebagai worker dan Mylta sebagai Load Balancer menggunakan apache sebagai web server nya dan load balancernya
+
+**Webserver (Stalber/Severny/Lipovka)**
+
+```
+
+echo 'nameserver 192.168.122.1' > /etc/resolv.conf
+apt-get update 
+apt-get install php -y
+apt-get install unzip -y
+
+curl -L -o lb.zip --insecure "https://drive.google.com/uc?export=download&id=1xn03kTB27K872cokqwEIlk8Zb121HnfB"
+
+unzip lb.zip
+rm /var/www/html/index.html
+cp worker/index.php /var/www/html/index.php
+apt-get install libapache2-mod-php7.0
+
+service apache2 start
+
+```
+
+**Load balancer (Mylta)**
+
+```
+echo 'nameserver 192.168.122.1' > /etc/resolv.conf
+
+a2enmod proxy
+a2enmod proxy_balancer
+a2enmod proxy_http
+a2enmod lbmethod_byrequests
+
+echo '<VirtualHost *:80>
+
+<Proxy balancer://mycluster>
+BalancerMember http://192.245.3.2/
+BalancerMember http://192.245.3.3/
+BalancerMember http://192.2245.3.4/
+ProxySet lbmethod=byrequests
+</Proxy>
+
+ProxyPass / balancer://mycluster/
+ProxyPassReverse / balancer://mycluster/
+</VirtualHost>
+' > /etc/apache2/sites-available/000-default.conf
+
+service apache2 start
+
+```
+
+**client**
+
+```
+apt-get install lynx apache2 php libapache2-mod-php7.0 nginx -y
+
+lynx http://192.245.3.2/ 
+lynx http://192.245.3.3/
+lynx http://192.245.3.4/
+
+```
+
+![13  client rozhok](https://github.com/NaufanZaki/Jarkom_Modul_2_IT24_2024/assets/124648489/5648e335-6bce-4b8b-b6f5-c1d84ce9246e)
+
+![13  rozhok severny](https://github.com/NaufanZaki/Jarkom_Modul_2_IT24_2024/assets/124648489/ed0fd9ac-f38e-41c3-aeae-7bc2c3251613)
+
+![13  rozhok stalber](https://github.com/NaufanZaki/Jarkom_Modul_2_IT24_2024/assets/124648489/291b7c6f-8183-4af0-a0ab-c2347d5b53bb)
+
+![13  rozhok lipovka](https://github.com/NaufanZaki/Jarkom_Modul_2_IT24_2024/assets/124648489/c112e7d7-0bc4-45a0-90cd-7ccc04531129)
 
 
+### Soal 14
 
+Mereka juga belum merasa puas jadi pusat meminta agar web servernya dan load balancer nya diubah menjadi nginx
+
+**Web server (Stalber/Severny/Lipovka)**
+
+```
+service apache2 stop
+
+apt install nginx php php-fpm -y
+
+service php7.0-fpm start
+
+echo 'server {
+listen 80;
+
+root /var/www/html;
+index index.php index.html index.htm index.nginx-debian.html;
+
+server_name _;
+
+location / {
+try_files $uri $uri/ /index.php?$query_string;
+}
+
+location ~ \.php$ {
+include snippets/fastcgi-php.conf;
+fastcgi_pass unix:/run/php/php7.0-fpm.sock;
+}
+
+location ~ /\.ht {
+deny all;
+}
+}' > /etc/nginx/sites-enabled/default
+
+service php7.0-fpm restart
+
+service nginx restart
+
+```
+
+**Load balancer (Mylta)**
+
+```
+
+service apache2 stop
+
+apt install nginx php php-fpm -y
+
+echo 'upstream backend {
+server 192.245.3.2; # IP Severny
+server 192.245.3.3; # IP Stalber
+server 192.245.3.4; # IP Lipovka
+}
+
+server {
+listen 80;
+
+location / {
+proxy_pass http://backend;
+}
+}
+' > /etc/nginx/sites-enabled/default
+
+service nginx restart
+
+```
+
+**Client**
+
+lynx http://192.245.3.2/ 
+lynx http://192.245.3.3/
+lynx http://192.245.3.4/
+
+
+![13  fp severny](https://github.com/NaufanZaki/Jarkom_Modul_2_IT24_2024/assets/124648489/3a885bdb-7979-4b85-804d-84ae2c5e954a)
+
+
+![14  rozhok stalber](https://github.com/NaufanZaki/Jarkom_Modul_2_IT24_2024/assets/124648489/4b1e85a1-495b-47b8-a905-a66275a3e78a)
+
+![14  rozhok stalber 2](https://github.com/NaufanZaki/Jarkom_Modul_2_IT24_2024/assets/124648489/c02e71d0-7f92-4f29-8c73-d2d106974b1a)
+
+![14  rozhok lipovka](https://github.com/NaufanZaki/Jarkom_Modul_2_IT24_2024/assets/124648489/e0fef194-0286-4a55-bebc-884fdd555f7f)
+
+![14  rozhok lipovka 2](https://github.com/NaufanZaki/Jarkom_Modul_2_IT24_2024/assets/124648489/a40d6be3-ffe9-43c4-a1a9-c9846f1ead7d)
+
+### Soal 15
+
+Markas pusat meminta laporan hasil benchmark dengan menggunakan apache benchmark dari load balancer dengan 2 web server yang berbeda tersebut dan meminta secara detail dengan ketentuan:
+Nama Algoritma Load Balancer
+Report hasil testing apache benchmark 
+Grafik request per second untuk masing masing algoritma. 
+Analisis
+
+**Menjalankan ab -n 1000 -c 100 http://192.245.2.5/**
+
+![15  rozhok](https://github.com/NaufanZaki/Jarkom_Modul_2_IT24_2024/assets/124648489/e7fb50e1-b283-40de-85cf-519d9684b1c9)
+
+![15  rozhok 2](https://github.com/NaufanZaki/Jarkom_Modul_2_IT24_2024/assets/124648489/54cfe994-3d8c-4236-8fbf-1b3661c7b227)
+
+![15  school](https://github.com/NaufanZaki/Jarkom_Modul_2_IT24_2024/assets/124648489/f87b1f5d-7d31-493e-b6c7-b94f2a970f8d)
+
+![15  school 2](https://github.com/NaufanZaki/Jarkom_Modul_2_IT24_2024/assets/124648489/bef6c279-2562-4887-abd7-3621fa3ff547)
+
+![15 fp](https://github.com/NaufanZaki/Jarkom_Modul_2_IT24_2024/assets/124648489/2f02dc05-4a4c-43d1-a37f-43200c7895bb)
+
+![15  fp 2](https://github.com/NaufanZaki/Jarkom_Modul_2_IT24_2024/assets/124648489/a6809567-b8d1-4381-a4af-cac6b1ad5bee)
+
+### Soal 16
+
+Karena dirasa kurang aman karena masih memakai IP, markas ingin akses ke mylta memakai mylta.xxx.com dengan alias www.mylta.xxx.com (sesuai web server terbaik hasil analisis kalian)
+
+**Pochinki**
+
+```
+
+echo 'zone "mylta.IT24.com" {
+        type master;
+        file "/etc/bind/jarkom/mylta.IT24.com";
+};' > /etc/bind/named.conf.local
+
+mkdir /etc/bind/jarkom
+
+cp /etc/bind/db.local /etc/bind/jarkom/mylta.IT24.com
+
+echo '
+;
+; BIND data file for local loopback interface
+;
+$TTL    604800
+@       IN      SOA     mylta.IT24.com. root.mylta.IT24.com. (
+                              2         ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+;
+@       IN      NS      mylta.IT24.com.
+@       IN      A       192.245.3.3     ; IP Stalber
+www             IN      CNAME   mylta.IT24.com.
+' > /etc/bind/jarkom/mylta.IT24.com
+
+service bind9 restart
+
+```
+
+**MyIta**
+
+```
+
+service nginx stop
+
+echo 'upstream backend {
+server 192.245.3.2; # IP Severny
+server 192.245.3.3; # IP Stalber
+server 192.245.3.4; # IP Lipovka
+}
+
+server {
+listen 80;
+server_name mylta.IT24.com www.mylta.IT24.com; 
+
+location / {
+proxy_pass http://backend;
+}
+}
+' > /etc/nginx/sites-enabled/default
+
+service nginx restart
+
+```
+
+**Client**
+
+```
+lynx http://mylta.IT24.com
+lynx http://www.mylta.IT24.com
+```
+
+![16  my ITA](https://github.com/NaufanZaki/Jarkom_Modul_2_IT24_2024/assets/124648489/cc983db9-84fb-455d-860d-0881509c77bc)
+
+![16  my ITA 2](https://github.com/NaufanZaki/Jarkom_Modul_2_IT24_2024/assets/124648489/c044a8b0-c73c-40ef-9813-d02f54a0de0d)
+
+![16  www](https://github.com/NaufanZaki/Jarkom_Modul_2_IT24_2024/assets/124648489/f971fa7c-b807-4e8a-83f5-2463d5db21e7)
+
+![16  www 2](https://github.com/NaufanZaki/Jarkom_Modul_2_IT24_2024/assets/124648489/6883aa86-b10d-4ea1-bc0f-da8f1c140fb6)
+
+### Soal 17
+
+Agar aman, buatlah konfigurasi agar mylta.xxx.com hanya dapat diakses melalui port 14000 dan 14400.
+
+**MyIta**
+
+```
+
+echo 'upstream backend {
+server 192.245.3.2; # IP Severny
+server 192.245.3.3; # IP Stalber
+server 192.245.3.4; # IP Lipovka
+}
+
+server {
+listen 14000;
+listen 14400;
+server_name mylta.IT24.com www.mylta.IT24.com; 
+
+location / {
+proxy_pass http://backend;
+}
+}
+' > /etc/nginx/sites-enabled/default
+
+service nginx restart
+
+```
+
+**Client**
+
+```
+
+lynx http://mylta.IT24.com:14000
+lynx http://www.mylta.IT24.com:14000
+lynx http://mylta.IT24.com:14400
+lynx http://www.mylta.IT24.com:14400
+
+```
+
+![17  my ita](https://github.com/NaufanZaki/Jarkom_Modul_2_IT24_2024/assets/124648489/8484a02f-3cbf-4fb1-a90e-faae86b356fb)
+
+![17  www](https://github.com/NaufanZaki/Jarkom_Modul_2_IT24_2024/assets/124648489/38a5015e-31fa-4e4c-b4f2-7a3fcede39db)
+
+# Soal 18
+
+Apa bila ada yang mencoba mengakses IP mylta akan secara otomatis dialihkan ke www.mylta.xxx.com
+
+**MyIta**
+
+```
+echo 'upstream backend {
+server 192.245.3.2; # IP Severny
+server 192.245.3.3; # IP Stalber
+server 192.245.3.4; # IP Lipovka
+}
+
+server {
+listen 14000;
+listen 14400;
+server_name mylta.IT24.com www.mylta.IT24.com; 
+
+location / {
+proxy_pass http://backend;
+if ($host = 192.245.2.5) {
+return 301 http://www.mylta.IT24.com:14000$request_uri;
+}
+}
+}
+' > /etc/nginx/sites-enabled/default
+
+service nginx restart
+
+```
+
+**Client**
+
+```
+lynx http://192.245.2.5:14000
+```
+
+![13  fp severny](https://github.com/NaufanZaki/Jarkom_Modul_2_IT24_2024/assets/124648489/01a0fd22-1178-499a-b5f4-6a11a57bc78b)
 
 
 
