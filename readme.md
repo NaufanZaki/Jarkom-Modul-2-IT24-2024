@@ -357,3 +357,5 @@ service bind9 restart
 ![nomor 10](documentation/10.png)
 
 
+#   J a r k o m _ M o d u l _ 2 _ I T 2 4 _ 2 0 2 4  
+ 
