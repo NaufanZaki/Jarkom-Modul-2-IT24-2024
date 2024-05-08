@@ -1,10 +1,10 @@
-# Jarkom-Modul-1-IT23-2024
+# Lapres Jarkom Modul 2
 
 | Nama | NRP |
 | --------------------- | ----------------------- |
 | Monika Damelia Hutapea | 5027221011 |
 | Naufan Zaki Lugmanulhakim | 5027221065 |
-
+# Soal
 # SetUp
 ## Address
 - Pochinki (192.245.1.2) (Master)
@@ -840,10 +840,15 @@ service nginx restart
 ```
 lynx http://192.245.2.5:14000
 ```
+# 19 Karena probset sudah kehabisan ide masuk ke salah satu worker buatkan akses direktori listing yang mengarah ke resource worker2
+
+
+# 20 Worker tersebut harus dapat di akses dengan tamat.xxx.com dengan alias www.tamat.xxx.com
 
 ![13  fp severny](https://github.com/NaufanZaki/Jarkom_Modul_2_IT24_2024/assets/124648489/01a0fd22-1178-499a-b5f4-6a11a57bc78b)
 
-
+## Revisi
+1. Untuk revisi dari soal nomor 5 - 10, adalah dibagian etc/resolv.conf dimana IP dari servernya masih salah oleh karena itu masih belum bisa ping saat demo, dan di lapres ini sudah dibetulkan dan sudah berjalan dengan baik
 
 
 
