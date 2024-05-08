@@ -357,4 +357,156 @@ service bind9 restart
 ![nomor 10](documentation/10.png)
 
 
-#
+
+### Soal 11
+
+Setelah pertempuran mereda, warga Erangel dapat kembali mengakses jaringan luar, tetapi hanya warga Pochinki saja yang dapat mengakses jaringan luar secara langsung. Buatlah konfigurasi agar warga Erangel yang berada diluar Pochinki dapat mengakses jaringan luar melalui DNS Server Pochinki
+
+**Pada Pochinki**
+
+```
+
+echo '
+options {
+        directory "/var/cache/bind";
+        forwarders {
+                192.168.122.1;
+        };
+        allow-query { any; };
+        auth-nxdomain no; #conform to RFC1035
+        listen-on-v6 { any; };
+};' > /etc/bind/named.conf.options
+
+
+```
+
+![image](https://github.com/NaufanZaki/Jarkom_Modul_2_IT24_2024/assets/124648489/bfbfc50b-5bbf-411f-9c99-a811e2334590)
+
+
+**Paada Georgopol**
+
+```
+
+echo '
+options {
+        directory "/var/cache/bind";
+        forwarders {
+                192.245.1.2; //ip pochinki
+        };
+        allow-query { any; };
+        auth-nxdomain no; #conform to RFC1035
+        listen-on-v6 { any; };
+};' > /etc/bind/named.conf.options
+
+
+```
+
+![image](https://github.com/NaufanZaki/Jarkom_Modul_2_IT24_2024/assets/124648489/7f20b718-3cee-4247-9326-445122f77e00)
+
+
+**Pada Klien**
+
+```
+
+echo '
+nameserver 192.245.1.2
+' > /etc/resolv.conf
+
+
+ping google.com
+
+```
+
+![image](https://github.com/NaufanZaki/Jarkom_Modul_2_IT24_2024/assets/124648489/6c6c2820-642d-4c35-b0d0-e4db004cb17a)
+
+
+### Soal 12
+
+Karena pusat ingin sebuah website yang ingin digunakan untuk memantau kondisi markas lainnya maka deploy lah webiste ini (cek resource yg lb) pada severny menggunakan apache
+
+```
+
+# severny
+
+echo '
+nameserver 192.168.122.1
+' > /etc/resolv.conf
+apt-get update
+apt-get install lynx -y
+apt-get install apache2 -y
+apt-get install php -y
+apt-get install libapache2-mod-php7.0 -y
+apt-get install unzip -y
+apt-get install wget -y
+cp /etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/redzone.IT24.com.conf
+
+echo '
+<VirtualHost *:80>
+        ServerAdmin webmaster@localhost
+        DocumentRoot /var/www/redzone.IT24.com
+        ServerName redzone.IT24.com
+        ServerAlias www.redzone.IT24.com
+
+        #LogLevel info ssl:warn
+
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+
+        #Include conf-available/serve-cgi-bin.conf
+</VirtualHost>
+
+# vim: syntax=apache ts=4 sw=4 sts=4 sr noet
+' > /etc/apache2/sites-available/redzone.IT24.com.conf
+
+service apache2 start
+
+# Membuat direktori redzone
+mkdir /var/www/redzone.IT24.com
+
+# Aktifkan konfigurasi situs
+a2ensite redzone.IT24.com.conf
+
+# Unduh dan ekstrak file redzone.zip
+wget --no-check-certificate "https://drive.google.com/file/d/1xn03kTB27K872cokqwEIlk8Zb121HnfB/view?usp=sharing" -O redzone.zip
+unzip redzone.zip -d redzone
+
+# Pindahkan isi direktori redzone ke direktori tujuan
+mv redzone/* /var/www/redzone.IT24.com/
+
+echo '
+nameserver 192.245.1.2
+' > /etc/resolv.conf
+
+
+# Klien
+
+echo '
+nameserver 192.168.122.1
+' > /etc/resolv.conf
+
+apt-get update
+apt-get install lynx -y
+
+echo '
+nameserver 192.245.1.2 # pochinki
+nameserver 192.245.1.3 # georgopol
+' > /etc/resolv.conf
+lynx http://www.redzone.IT24.com
+
+
+```
+
+**Output**
+
+![image](https://github.com/NaufanZaki/Jarkom_Modul_2_IT24_2024/assets/124648489/2ab046ae-3e1e-419d-a20c-71aba12d9cac)
+
+
+
+
+
+
+
+
+
+
+
